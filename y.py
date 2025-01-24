@@ -5,18 +5,49 @@ import datetime
 class BankingApp:
     def __init__(self):
         self.users = {
-            '123': {
-                'password': 'pass123',
-                'name': 'John Doe',
-                'account_type': 'Pichincha',
-                'balance': 1000.00,
+            '001': {
+                'name': 'Juan Pérez',
+                'account_type': 'Ahorros',
+                'cedula': '1725364578',
+                'password': 'pass001',
+                'user_account_type': 'Pichincha',
+                'balance': 1500.00,
                 'transactions': []
             },
-            '456': {
-                'password': 'pass456',
-                'name': 'John Doe',
-                'account_type': 'Produbanco',
-                'balance': 1000.00,
+            '002': {
+                'name': 'María Rodríguez',
+                'account_type': 'Ahorros',
+                'cedula': '1234567890',
+                'password': 'pass002',
+                'user_account_type': 'Otra',
+                'balance': 2000.00,
+                'transactions': []
+            },
+            '003': {
+                'name': 'Carlos Gómez',
+                'account_type': 'Corriente',
+                'cedula': '0987654321',
+                'password': 'pass003',
+                'user_account_type': 'Pichincha',
+                'balance': 3500.00,
+                'transactions': []
+            },
+            '004': {
+                'name': 'Ana López',
+                'account_type': 'Ahorros',
+                'cedula': '1357924680',
+                'password': 'pass004',
+                'user_account_type': 'Otra',
+                'balance': 1200.00,
+                'transactions': []
+            },
+            '005': {
+                'name': 'Luis Mendoza',
+                'account_type': 'Corriente',
+                'cedula': '2468013579',
+                'password': 'pass005',
+                'user_account_type': 'Pichincha',
+                'balance': 4000.00,
                 'transactions': []
             }
         }
@@ -76,19 +107,23 @@ class BankingApp:
         unlock_window.title("Desbloquear Cuenta")
         unlock_window.geometry("300x200")
 
-        tk.Label(unlock_window, text="ID de Usuario:").pack(pady=10)
+        tk.Label(unlock_window, text="Cédula:").pack(pady=5)
+        cedula_entry = tk.Entry(unlock_window)
+        cedula_entry.pack(pady=5)
+
+        tk.Label(unlock_window, text="ID de Usuario:").pack(pady=5)
         user_id_entry = tk.Entry(unlock_window)
         user_id_entry.pack(pady=5)
 
-        tk.Label(unlock_window, text="Contraseña:").pack(pady=10)
-        password_entry = tk.Entry(unlock_window, show="*")
-        password_entry.pack(pady=5)
-
         def validate_unlock():
+            cedula = cedula_entry.get()
             user_id = user_id_entry.get()
-            password = password_entry.get()
 
-            if user_id in self.users and self.users[user_id]['password'] == password:
+            # Find user by cedula and id
+            matching_users = [uid for uid, user in self.users.items() 
+                            if user['cedula'] == cedula and uid == user_id]
+
+            if matching_users:
                 self.blocked_accounts.discard(user_id)
                 messagebox.showinfo("Éxito", "Cuenta desbloqueada exitosamente.")
                 unlock_window.destroy()
@@ -129,16 +164,19 @@ class BankingApp:
         def proceed():
             account_type = selected_type.get()
             user_account_type = self.users[self.current_user]['account_type']
+            user_bank_type = self.users[self.current_user]['user_account_type']
 
-            if account_type not in account_types:
-                messagebox.showerror("Error", "Tipo de cuenta inválido.")
+            # Validate account type based on user's defined account type
+            if account_type != user_account_type:
+                messagebox.showerror("Error", f"El tipo de cuenta seleccionado no corresponde.")
                 verify_window.destroy()
                 return
 
-            if user_account_type != "Pichincha":
+            if user_bank_type != "Pichincha":
                 response = messagebox.askyesno("Comisión", "Se cobrará $0.52 por transacción. ¿Desea continuar?")
                 if not response:
                     messagebox.showinfo("Información", "Gracias. Vuelva pronto.")
+                    verify_window.destroy()
                     self.root.quit()
                     return
 
